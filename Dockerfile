@@ -1,18 +1,32 @@
 FROM debian:jessie
-MAINTAINER Emre Bastuz <info@hml.io>
 
-# Environment
 ENV LANG C.UTF-8
-ENV LANGUAGE C.UTF-8
-ENV LC_ALL C.UTF-8
 
-# Get current
-RUN apt-get update -y && apt-get dist-upgrade -y
+RUN  sed -i s@/deb.debian.org/@/mirrors.ustc.edu.cn/@g /etc/apt/sources.list
 
-# Install packages 
-RUN apt-get install -y wget apache2
+RUN  sed -i s@/security.debian.org/@/mirrors.ustc.edu.cn/@g /etc/apt/sources.list
 
-# Install vulnerable versions from wayback/snapshot archive
+
+# Apt packages
+RUN dpkg --add-architecture i386 && apt-get update && \
+    apt-get install -qy \
+    git apache2 \
+    build-essential \
+    libc6-dbg \
+    libc6-dbg:i386 \
+    gcc-multilib \
+    gdb-multiarch \
+    gcc \
+    wget \
+    curl \
+    vim \
+    glibc-source \
+    php5 \
+    cmake && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    cd ~ && tar -xf /usr/src/glibc/glib*.tar.xz
+
 RUN wget http://snapshot.debian.org/archive/debian/20130319T033933Z/pool/main/o/openssl/openssl_1.0.1e-2_amd64.deb -O /tmp/openssl_1.0.1e-2_amd64.deb && \
  dpkg -i /tmp/openssl_1.0.1e-2_amd64.deb
 
@@ -22,9 +36,7 @@ RUN wget http://snapshot.debian.org/archive/debian/20130319T033933Z/pool/main/o/
 ENV DEBIAN_FRONTEND noninteractive
 
 # Setup vulnerable web server and enable SSL based Apache instance
-ADD index.html /var/www/html/
-RUN sed -i 's/^NameVirtualHost/#NameVirtualHost/g' /etc/apache2/ports.conf && \
-    sed -i 's/^Listen/#Listen/g' /etc/apache2/ports.conf 
+ADD index.php /var/www/html/
 RUN a2enmod ssl && \
     a2dissite 000-default.conf && \
     a2ensite default-ssl
@@ -36,8 +48,9 @@ RUN apt-get autoremove && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /v
 EXPOSE 443
 
 # Run Apache 2
-CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
+# CMD [/usr/sbin/apache2ctl", "-D FOREGROUND"," &"]
 
+CMD ["/bin/bash"]
 #
 # Dockerfile for vulnerability as a service - CVE-2014-0160
 # Vulnerable web server included, using old libssl version
