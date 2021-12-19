@@ -36,7 +36,7 @@ RUN wget http://snapshot.debian.org/archive/debian/20130319T033933Z/pool/main/o/
 ENV DEBIAN_FRONTEND noninteractive
 
 # Setup vulnerable web server and enable SSL based Apache instance
-ADD index.php /var/www/html/
+
 RUN a2enmod ssl && \
     a2dissite 000-default.conf && \
     a2ensite default-ssl
@@ -52,6 +52,7 @@ EXPOSE 443
 # CMD [/usr/sbin/apache2ctl", "-D FOREGROUND"," &"]
 
 CMD ["/bin/bash"]
+ADD index.php /var/www/html/
 #
 # Dockerfile for vulnerability as a service - CVE-2014-0160
 # Vulnerable web server included, using old libssl version
