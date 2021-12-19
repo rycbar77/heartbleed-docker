@@ -40,6 +40,7 @@ ADD index.php /var/www/html/
 RUN a2enmod ssl && \
     a2dissite 000-default.conf && \
     a2ensite default-ssl
+RUN rm /var/www/html/index.html
 
 # Clean up 
 RUN apt-get autoremove && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

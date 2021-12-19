@@ -1,7 +1,7 @@
 <html>
   <body>
     <form name="form" action="" method="post">
-      <input type="text" name="secret">
+      <input type="text" name="secret" value="apple">
     </form>
 
     <?php
